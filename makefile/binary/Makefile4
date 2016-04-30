@@ -1,0 +1,5 @@
+test: main.o add.o
+	gcc -o $@ $^
+clean:
+	rm *.o
+	rm test
