@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/sem.h>
+#include <errno.h>
 
 union semun
 {
@@ -14,12 +15,10 @@ union semun
 	unsigned short *arry;
 };
 
-static int sem_id = 0;
-
 static int semaphore_p();
 static int semaphore_v();
 
-#define PRINT_ERR(int ret) \
+#define PRINT_ERR(ret) \
     if ( ret < 0 ){  \
         printf("Call is fail at line %d, function:%s, ret:%d -- %s\n", __LINE__, __FUNCTION__, ret, strerror(errno)); \
         exit(-1); \
@@ -27,18 +26,18 @@ static int semaphore_v();
 
 int main(int argc, char *argv[])
 {
-	char message = 'X';
-	int i = 0;
+    char message = 'X';
+    int i = 0;
     key_t k = 0;
     unsigned int pid = 0;
     int ret = 0;
-	struct sembuf sem_p = (0, -1, 0};
-	struct sembuf sem_v = {0,  1, 0};
+    struct sembuf sem_p = {0, -1, 0};
+    struct sembuf sem_v = {0,  1, 0};
 
     int sem_id = 0;
 
     k = ftok("/proc/uptime", 1);
-    PRINT_ERR(k);
+    PRINT_ERR(k)
     
 	sem_id = semget(k, 1, 0666 | IPC_CREAT);
     PRINT_ERR(sem_id);
@@ -57,7 +56,7 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-		printf("%2d: Get right.", getpid(), message);
+		printf("%2d: Get right.\n", getpid(), message);
 
 		fflush(stdout);
 		sleep(rand() % 3);
@@ -68,7 +67,7 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-		printf("%2d: release right.", getpid());
+		printf("%2d: release right.\n", getpid());
 
 	}
 
