@@ -1,97 +1,56 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
+#include <sys/shm.h>
 #include <sys/sem.h>
+#include <semaphore.h>
+#include "utilities.h"
 
-union semun{
-        int val;
-        struct semid_ds * buf;
-        unsigned short int * array;
-        struct seminfo * __buf;
-};
 
-int main(int argc,char* argv[])
+int main(int argc, char *argv[])
 {
-	int semid;
-	pid_t pid;
-	int proj_id;
-	key_t key;	
-	int num;
-	int i,j;
+    int i = 0;
+    int ret = 0;
+    pid_t pid = 0;
 
-	union semun arg;
+    key_t key;
+    char temp;
+    int shm_id;
+    
+    sem_t * plock;
 
-	static struct sembuf acquire={0,-1,SEM_UNDO};
-	static struct sembuf release={0,1,SEM_UNDO};
+    key = ftok(SHARED_MEM,0);
+    PRINT_ERR(key)
 
-	if(argc!=2){
-		printf("Usage : %s num\n",argv[0]);
-		return -1;
-	}
+    shm_id=shmget(key,4096,IPC_CREAT|0666);
+    PRINT_ERR(shm_id)
 
-	num=atoi(argv[1]);
+    //SHM_RDONLY, RDWR by default
+    plock=(sem_t *)shmat(shm_id,NULL,0);
+    PRINT_ERR((void *)plock==(void *)-1?-1:1)
+    
+    ret = sem_init(plock, 1, 1);
+    PRINT_ERR(ret)
 
-	proj_id=2;
-	key=ftok("/home/sifang",proj_id);
-	if(key==-1){
-		perror("cannot generate the IPC key");
-		return -1;
-	}
+    pid = fork();
+    pid = fork();
 
-	semid=semget(key,1,IPC_CREAT | IPC_EXCL | 0666);
-	if(semid==-1){
-		perror("cannot create semaphore set");
-		return -1;
-	}	
+    printf("%d : try to get right.\n", getpid());
+    fflush(stdout);
 
-	static unsigned short start_var=1;
-	arg.array=1;
-	if(semctl(semid,0,SETVAL,arg)==-1){
-		perror("cannot set semaphore set");
-		return -1;	
-	}	
+    ret = sem_wait(plock);
+    PRINT_ERR(ret)
 
-	for(i=0;i<num;i++){
-		pid=fork();
+    printf("%d : Got right.\n", getpid());
+    fflush(stdout);
 
-		if(pid<0){
-			perror("cannot create new process");
-			return -1;
-		}else if(pid==0){
-			semid=semget(key,1,0);
-			if(semid==-1){
-				perror("cannot let the process get the access right");
-				_exit(-1);
-			}	
+    printf("%d : sleep for a while.\n", getpid());
+    fflush(stdout);
+    sleep(random()%4);
 
-			for(j=0;j<2;j++){
-				sleep(i);
-				if(semop(semid,&acquire,1)==-1){
-					perror("cannot acquire the resource");
-					_exit(-1);
-				}
+    ret = sem_post(plock);
+    PRINT_ERR(ret)
 
-				printf("====enter the critical section=====\n");
-				printf("---pid : % ld ---\n",(long)getpid());
-				sleep(1);
-				printf("====leave the critical section=====\n");
+    printf("%d : Released right.\n", getpid());
+    fflush(stdout);
 
-				if(semop(semid,&release,1)==-1){
-					perror("cannot release the resource");
-					_exit(-1);
-				}
-			}
-			_exit(0);
-		}
-	}
-
-	for(i=0;i<num;i++)
-		wait(NULL);
-
-	if(semctl(semid,0,IPC_RMID,0)==-1){
-		perror("cannot remove the semaphore set");
-		return -1;
-	}
-
-	return 0;
+    exit(EXIT_SUCCESS);
 }
+
