@@ -64,5 +64,9 @@ int main(int argc,char* argv[])
 	}else
 		printf("message queue id: %d message type : %d message : %s\n",msqid,msg_type,buf);
 
+	//If not remove, this message queue will be in kernel forever
+	result =msgctl(msqid, IPC_RMID, NULL);
+	PRINT_ERR(result)
+
 	return 0;
 }
