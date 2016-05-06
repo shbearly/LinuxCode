@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <sys/types.h>
+#include "utilities.h"
 #include <sys/ipc.h>
 #include <sys/msg.h>
+
+#define BUFSIZE 256
 
 typedef struct {
 	long mtype;
@@ -17,12 +18,13 @@ int creat_msg_queue()
         struct msqid_ds buffer;
 
         proj_id=2;
-        key=ftok("/home/bhsong",proj_id);
+        key=ftok("/proc/1/cmdline",proj_id);
         if(key==-1){
                 perror("cannot generate the IPC key");
                 return -1;
         }
 
+	printf("The key is:%d\n",key);
         msqid=msgget(key,IPC_CREAT | 0660);
         if(msqid==-1){
                 perror("cannot create message queue resource");
@@ -41,6 +43,7 @@ int send_msg(int msqid,char* msg)
 
 	buf.mtype=100;
 	strcpy(buf.mtext,msg);
+	printf("The type is:%d\n", buf.mtype);
 
 	result=msgsnd(msqid,&buf,strlen(msg),0);
 	if(result==-1)

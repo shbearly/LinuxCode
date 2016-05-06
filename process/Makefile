@@ -10,6 +10,8 @@ sha: sharemem_r sharemem_w
 
 ioctl: ioctl_intf ioctl_phyconn ioctl_phyconn2 ioctl_voice
 
+msg: msgrcv msgsnd
+
 .PHONY : clean
-clean: sharemem_r sharemem_w semphore ioctl_intf ioctl_phyconn ioctl_phyconn2 ioctl_voice
+clean: sharemem_r sharemem_w semphore ioctl_intf ioctl_phyconn ioctl_phyconn2 ioctl_voice msgrcv msgsnd
 	rm -rf $^

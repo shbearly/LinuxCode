@@ -1,7 +1,32 @@
-#include <stdio.h>
-#include <sys/types.h>
+#include "utilities.h"
 #include <sys/ipc.h>
 #include <sys/msg.h>
+
+#define BUFSIZE 256
+
+int creat_msg_queue()
+{
+        key_t key;
+        int proj_id;
+        int msqid;
+
+        struct msqid_ds buffer;
+
+        proj_id=2;
+        key=ftok("/proc/1/cmdline",proj_id);
+        if(key==-1){
+                perror("cannot generate the IPC key");
+                return -1;
+        }
+
+        msqid=msgget(key,IPC_CREAT | 0660);
+        if(msqid==-1){
+                perror("cannot create message queue resource");
+                return -1;
+        }
+
+	return msqid;
+}
 
 typedef struct {
         long mtype;
@@ -13,9 +38,8 @@ int recv_msg(int msqid,int msg_type,char* msg)
 	int result;
 	msg_info buffer;
 
-	result=msgrcv(msqid,&buffer,BUFSIZ,msg_type,0);
-	if(result==-1)
-		perror("cannot receive message from the queue");
+	result=msgrcv(msqid,&buffer,sizeof(buffer),msg_type,0);
+        PRINT_ERR(result)
 
 	strcpy(msg,buffer.mtext);	
 
@@ -29,13 +53,9 @@ int main(int argc,char* argv[])
 	int msg_type;
 	int result;
 
-	if(argc!=3){
-		printf("Usage: %s msqid message_type\n");
-		return -1;
-	}
-	
-	msqid=atoi(argv[1]);
-	msg_type=atoi(argv[2]);
+        msqid = creat_msg_queue();
+	msg_type=100;
+	printf("msqid is :%d, msg type is:%d\n", msqid, msg_type);
 	
 	result=recv_msg(msqid,msg_type,buf);
 	if(result==-1){
