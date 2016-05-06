@@ -1,0 +1,3 @@
+# LinuxCode
+All the code here can't be used by any other persons or companies.
+This repo is just my private storage.
