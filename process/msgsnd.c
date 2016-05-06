@@ -43,7 +43,7 @@ int send_msg(int msqid,char* msg)
 
 	buf.mtype=100;
 	strcpy(buf.mtext,msg);
-	printf("The type is:%d\n", buf.mtype);
+	printf("The type is:%d\n", (int)buf.mtype);
 
 	result=msgsnd(msqid,&buf,strlen(msg),0);
 	if(result==-1)
@@ -70,9 +70,9 @@ int show_msg_queue_stat(int msqid)
         printf("message queue's creator group id : %d \n",buffer.msg_perm.cgid);
         printf("access mode : %x\n",buffer.msg_perm.mode);
 
-        printf("Maximum number of bytes allowed in message queue : %d \n",buffer.msg_qbytes);
-        printf("Current number of bytes in message queue (non-standard) : %d \n",buffer.__msg_cbytes);
-        printf("Current number of messages in message queue : %d \n",buffer.msg_qnum);
+        printf("Maximum number of bytes allowed in message queue : %d \n",(int)buffer.msg_qbytes);
+        printf("Current number of bytes in message queue (non-standard) : %d \n",(int)buffer.__msg_cbytes);
+        printf("Current number of messages in message queue : %d \n",(int)buffer.msg_qnum);
 
 	return 0;
 }
@@ -86,7 +86,7 @@ int main(int argc,char* argv[])
 		return -1;
 	}
 
-	if(send_msg(msqid,"test message")<0){
+	if(send_msg(msqid,(char*)"test message")<0){
 		printf("send message fail");
 		return -1;
 	}
