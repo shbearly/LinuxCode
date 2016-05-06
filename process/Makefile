@@ -3,7 +3,10 @@ CC=g++
 CFLAGS= -g -pthread
 LFLAGS= -pthread
 
-all:
+usage:
+	@echo " make semphore sem sha ioctl msg"
+
+all: semphore sem sha ioctl msg
 
 semphore: semphore
 
