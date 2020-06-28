@@ -1,0 +1,1 @@
+cmd_/home/yanli/cga4233tca/cujo/cujo-nflua-master/src/nflua.o := /home/yanli/cga4233tca/build-cga4233_pc15_mgcp_tlc/tmp/sysroots/x86_64-linux/usr/bin/cortexa15hf-vfp-neon-rdk-linux-gnueabi/arm-rdk-linux-gnueabi-ld -EL    -r -o /home/yanli/cga4233tca/cujo/cujo-nflua-master/src/nflua.o @/home/yanli/cga4233tca/cujo/cujo-nflua-master/src/nflua.o.list 
